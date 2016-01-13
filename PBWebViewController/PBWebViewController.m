@@ -7,8 +7,14 @@
 //
 
 #import "PBWebViewController.h"
+#import "NJKWebViewProgress.h"
+#import "NJKWebViewProgressView.h"
 
-@interface PBWebViewController () <UIPopoverControllerDelegate>
+@interface PBWebViewController () <UIPopoverControllerDelegate, NJKWebViewProgressDelegate>
+{
+  NJKWebViewProgressView *_progressView;
+  NJKWebViewProgress *_progressProxy;
+}
 
 @property (strong, nonatomic) UIWebView *webView;
 
@@ -27,256 +33,303 @@
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        [self commonInit];
-    }
-    return self;
+  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
+    [self commonInit];
+  }
+  return self;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    self = [super initWithCoder:aDecoder];
-    if (self) {
-        [self commonInit];
-    }
-    return self;
+  self = [super initWithCoder:aDecoder];
+  if (self) {
+    [self commonInit];
+  }
+  return self;
 }
 
 - (void)commonInit
 {
-    _showsNavigationToolbar = YES;
+  _showsNavigationToolbar = YES;
 }
 
 - (void)load
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:self.URL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:60.0];
-    [self.webView loadRequest:request];
-    
-    if (self.navigationController.toolbarHidden) {
-        self.toolbarPreviouslyHidden = YES;
-        if (self.showsNavigationToolbar) {
-            [self.navigationController setToolbarHidden:NO animated:YES];
-        }
+  NSURLRequest *request = [NSURLRequest requestWithURL:self.URL
+                                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                       timeoutInterval:60.0];
+  [self.webView loadRequest:request];
+  
+  if (self.navigationController.toolbarHidden) {
+    self.toolbarPreviouslyHidden = YES;
+    if (self.showsNavigationToolbar) {
+      [self.navigationController setToolbarHidden:NO animated:YES];
     }
+  }
 }
 
 - (void)clear
 {
-    [self.webView loadHTMLString:@"" baseURL:nil];
-    self.title = @"";
+  [self.webView loadHTMLString:@"" baseURL:nil];
+  self.title = @"";
+}
+
+- (void)setupNJKWebViewProgress
+{
+  _progressProxy = [[NJKWebViewProgress alloc] init];
+  _webView.delegate = _progressProxy;
+  _progressProxy.webViewProxyDelegate = self;
+  _progressProxy.progressDelegate = self;
+  
+  CGFloat progressBarHeight = 2.f;
+  CGRect navigationBarBounds = self.navigationController.navigationBar.bounds;
+  CGRect barFrame = CGRectMake(0, navigationBarBounds.size.height - progressBarHeight, navigationBarBounds.size.width, progressBarHeight);
+  _progressView = [[NJKWebViewProgressView alloc] initWithFrame:barFrame];
+  _progressView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+  _progressView.progress = 0.f;
 }
 
 #pragma mark - View controller lifecycle
 
 - (void)loadView
 {
-    self.webView = [[UIWebView alloc] init];
-    self.webView.scalesPageToFit = YES;
-    self.view = self.webView;
+  self.webView = [[UIWebView alloc] init];
+  self.webView.scalesPageToFit = YES;
+  self.view = self.webView;
+  
+  [self setupNJKWebViewProgress];
 }
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    [self setupToolBarItems];
+  [super viewDidLoad];
+  [self setupToolBarItems];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [super viewWillAppear:animated];
-    self.webView.delegate = self;
-    if (self.URL) {
-        [self load];
-    }
+  [super viewWillAppear:animated];
+  //self.webView.delegate = self;
+  
+  if (_progressView) {
+    self.webView.delegate = _progressProxy;
+    _progressProxy.webViewProxyDelegate = self;
+    _progressProxy.progressDelegate = self;
+    [self.navigationController.navigationBar addSubview:_progressView];
+  }
+  
+  if (self.URL) {
+    [self load];
+  }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    [super viewWillDisappear:animated];
-    [self.webView stopLoading];
+  [super viewWillDisappear:animated];
+  [self.webView stopLoading];
+  //self.webView.delegate = nil;
+  
+  if (_progressView) {
     self.webView.delegate = nil;
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    _progressProxy.webViewProxyDelegate = nil;
+    _progressProxy.progressDelegate = nil;
     
-    if (self.toolbarPreviouslyHidden && self.showsNavigationToolbar) {
-        [self.navigationController setToolbarHidden:YES animated:YES];
-    }
+    // Remove progress view
+    // because UINavigationBar is shared with other ViewControllers
+    [_progressView removeFromSuperview];
+  }
+  
+  [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+  
+  if (self.toolbarPreviouslyHidden && self.showsNavigationToolbar) {
+    [self.navigationController setToolbarHidden:YES animated:YES];
+  }
 }
 
 #pragma mark - Helpers
 
 - (UIImage *)backButtonImage
 {
-    static UIImage *image;
+  static UIImage *image;
+  
+  static dispatch_once_t predicate;
+  dispatch_once(&predicate, ^{
+    CGSize size = CGSizeMake(12.0, 21.0);
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
     
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        CGSize size = CGSizeMake(12.0, 21.0);
-        UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-        
-        UIBezierPath *path = [UIBezierPath bezierPath];
-        path.lineWidth = 1.5;
-        path.lineCapStyle = kCGLineCapButt;
-        path.lineJoinStyle = kCGLineJoinMiter;
-        [path moveToPoint:CGPointMake(11.0, 1.0)];
-        [path addLineToPoint:CGPointMake(1.0, 11.0)];
-        [path addLineToPoint:CGPointMake(11.0, 20.0)];
-        [path stroke];
-        
-        image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    });
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    path.lineWidth = 1.5;
+    path.lineCapStyle = kCGLineCapButt;
+    path.lineJoinStyle = kCGLineJoinMiter;
+    [path moveToPoint:CGPointMake(11.0, 1.0)];
+    [path addLineToPoint:CGPointMake(1.0, 11.0)];
+    [path addLineToPoint:CGPointMake(11.0, 20.0)];
+    [path stroke];
     
-    return image;
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+  });
+  
+  return image;
 }
 
 - (UIImage *)forwardButtonImage
 {
-    static UIImage *image;
+  static UIImage *image;
+  
+  static dispatch_once_t predicate;
+  dispatch_once(&predicate, ^{
+    UIImage *backButtonImage = [self backButtonImage];
     
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        UIImage *backButtonImage = [self backButtonImage];
-        
-        CGSize size = backButtonImage.size;
-        UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-        
-        CGContextRef context = UIGraphicsGetCurrentContext();
-        
-        CGFloat x_mid = size.width / 2.0;
-        CGFloat y_mid = size.height / 2.0;
-        
-        CGContextTranslateCTM(context, x_mid, y_mid);
-        CGContextRotateCTM(context, M_PI);
-        
-        [backButtonImage drawAtPoint:CGPointMake(-x_mid, -y_mid)];
-        
-        image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    });
+    CGSize size = backButtonImage.size;
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
     
-    return image;
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGFloat x_mid = size.width / 2.0;
+    CGFloat y_mid = size.height / 2.0;
+    
+    CGContextTranslateCTM(context, x_mid, y_mid);
+    CGContextRotateCTM(context, M_PI);
+    
+    [backButtonImage drawAtPoint:CGPointMake(-x_mid, -y_mid)];
+    
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+  });
+  
+  return image;
 }
 
 - (void)setupToolBarItems
 {
-    self.stopLoadingButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop
-                                                                           target:self.webView
-                                                                           action:@selector(stopLoading)];
-    
-    self.reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
-                                                                      target:self.webView
-                                                                      action:@selector(reload)];
-    
-    self.backButton = [[UIBarButtonItem alloc] initWithImage:[self backButtonImage]
-                                                       style:UIBarButtonItemStylePlain
-                                                      target:self.webView
-                                                      action:@selector(goBack)];
-    
-    self.forwardButton = [[UIBarButtonItem alloc] initWithImage:[self forwardButtonImage]
-                                                          style:UIBarButtonItemStylePlain
-                                                         target:self.webView
-                                                         action:@selector(goForward)];
-    
-    self.backButton.enabled = NO;
-    self.forwardButton.enabled = NO;
-    
-    UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                                                                                  target:self
-                                                                                  action:@selector(action:)];
-    
-    UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                                                                           target:nil
-                                                                           action:nil];
-    
-    UIBarButtonItem *space_ = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
-                                                                            target:nil
-                                                                            action:nil];
-    space_.width = 60.0f;
-    
-    self.toolbarItems = @[self.stopLoadingButton, space, self.backButton, space_, self.forwardButton, space, actionButton];
+  self.stopLoadingButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop
+                                                                         target:self.webView
+                                                                         action:@selector(stopLoading)];
+  
+  self.reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
+                                                                    target:self.webView
+                                                                    action:@selector(reload)];
+  
+  self.backButton = [[UIBarButtonItem alloc] initWithImage:[self backButtonImage]
+                                                     style:UIBarButtonItemStylePlain
+                                                    target:self.webView
+                                                    action:@selector(goBack)];
+  
+  self.forwardButton = [[UIBarButtonItem alloc] initWithImage:[self forwardButtonImage]
+                                                        style:UIBarButtonItemStylePlain
+                                                       target:self.webView
+                                                       action:@selector(goForward)];
+  
+  self.backButton.enabled = NO;
+  self.forwardButton.enabled = NO;
+  
+  UIBarButtonItem *actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                                                                                target:self
+                                                                                action:@selector(action:)];
+  
+  UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                         target:nil
+                                                                         action:nil];
+  
+  UIBarButtonItem *space_ = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
+                                                                          target:nil
+                                                                          action:nil];
+  space_.width = 60.0f;
+  
+  self.toolbarItems = @[self.stopLoadingButton, space, self.backButton, space_, self.forwardButton, space, actionButton];
 }
 
 - (void)toggleState
 {
-    self.backButton.enabled = self.webView.canGoBack;
-    self.forwardButton.enabled = self.webView.canGoForward;
-    
-    NSMutableArray *toolbarItems = [self.toolbarItems mutableCopy];
-    if (self.webView.loading) {
-        toolbarItems[0] = self.stopLoadingButton;
-    } else {
-        toolbarItems[0] = self.reloadButton;
-    }
-    self.toolbarItems = [toolbarItems copy];
+  self.backButton.enabled = self.webView.canGoBack;
+  self.forwardButton.enabled = self.webView.canGoForward;
+  
+  NSMutableArray *toolbarItems = [self.toolbarItems mutableCopy];
+  if (self.webView.loading) {
+    toolbarItems[0] = self.stopLoadingButton;
+  } else {
+    toolbarItems[0] = self.reloadButton;
+  }
+  self.toolbarItems = [toolbarItems copy];
 }
 
 - (void)finishLoad
 {
-    [self toggleState];
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+  [self toggleState];
+  [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 #pragma mark - Button actions
 
 - (void)action:(id)sender
 {
-    if (self.activitiyPopoverController.popoverVisible) {
-        [self.activitiyPopoverController dismissPopoverAnimated:YES];
-        return;
+  if (self.activitiyPopoverController.popoverVisible) {
+    [self.activitiyPopoverController dismissPopoverAnimated:YES];
+    return;
+  }
+  
+  NSArray *activityItems = @[self.URL];
+  
+  if (self.activityItems) {
+    activityItems = self.activityItems;
+  }
+  
+  UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:activityItems
+                                                                   applicationActivities:self.applicationActivities];
+  vc.excludedActivityTypes = self.excludedActivityTypes;
+  
+  if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+    [self presentViewController:vc animated:YES completion:NULL];
+  } else {
+    if (!self.activitiyPopoverController) {
+      self.activitiyPopoverController = [[UIPopoverController alloc] initWithContentViewController:vc];
     }
     
-    NSArray *activityItems = @[self.URL];
+    self.activitiyPopoverController.delegate = self;
     
-    if (self.activityItems) {
-        activityItems = self.activityItems;
-    }
-    
-    UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:activityItems
-                                                                     applicationActivities:self.applicationActivities];
-    vc.excludedActivityTypes = self.excludedActivityTypes;
-    
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        [self presentViewController:vc animated:YES completion:NULL];
-    } else {
-        if (!self.activitiyPopoverController) {
-            self.activitiyPopoverController = [[UIPopoverController alloc] initWithContentViewController:vc];
-        }
-        
-        self.activitiyPopoverController.delegate = self;
-        
-        UIBarButtonItem *barButtonItem = [self.toolbarItems lastObject];
-        [self.activitiyPopoverController presentPopoverFromBarButtonItem:barButtonItem
-                                                permittedArrowDirections:UIPopoverArrowDirectionAny
-                                                                animated:YES];
-    }
+    UIBarButtonItem *barButtonItem = [self.toolbarItems lastObject];
+    [self.activitiyPopoverController presentPopoverFromBarButtonItem:barButtonItem
+                                            permittedArrowDirections:UIPopoverArrowDirectionAny
+                                                            animated:YES];
+  }
 }
 
 #pragma mark - Web view delegate
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    [self toggleState];
+  [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+  [self toggleState];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    [self finishLoad];
-    self.title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-    self.URL = self.webView.request.URL;
+  [self finishLoad];
+  self.title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+  self.URL = self.webView.request.URL;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    [self finishLoad];
+  [self finishLoad];
+}
+
+#pragma mark - NJKWebViewProgressDelegate
+
+- (void)webViewProgress:(NJKWebViewProgress *)webViewProgress updateProgress:(float)progress
+{
+  if (_progressView) {
+    [_progressView setProgress:progress animated:NO];
+  }
 }
 
 #pragma mark - Popover controller delegate
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
-    self.activitiyPopoverController = nil;
+  self.activitiyPopoverController = nil;
 }
 
 @end

@@ -17,6 +17,8 @@
 		1882DF9F1733D8CD0030D3E2 /* KMAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1882DF9E1733D8CD0030D3E2 /* KMAppDelegate.m */; };
 		1882DFA81733D8CD0030D3E2 /* KMMasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1882DFA71733D8CD0030D3E2 /* KMMasterViewController.m */; };
 		1882DFAB1733D8CD0030D3E2 /* KMWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1882DFAA1733D8CD0030D3E2 /* KMWebViewController.m */; };
+		4CEBB7611C465FA100DA40F5 /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEBB75E1C465FA100DA40F5 /* NJKWebViewProgress.m */; };
+		4CEBB7621C465FA100DA40F5 /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEBB7601C465FA100DA40F5 /* NJKWebViewProgressView.m */; };
 		6401361418198A4B0041A84C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6401361318198A4B0041A84C /* Images.xcassets */; };
 		6404E5801913A20700221937 /* PBWebViewController.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 6404E57E1913A20700221937 /* PBWebViewController.podspec */; };
 		6404E5841913A21600221937 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6404E5821913A21600221937 /* LICENSE.txt */; };
@@ -44,6 +46,10 @@
 		1882DFA71733D8CD0030D3E2 /* KMMasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KMMasterViewController.m; sourceTree = "<group>"; };
 		1882DFA91733D8CD0030D3E2 /* KMWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KMWebViewController.h; sourceTree = "<group>"; };
 		1882DFAA1733D8CD0030D3E2 /* KMWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KMWebViewController.m; sourceTree = "<group>"; };
+		4CEBB75D1C465FA100DA40F5 /* NJKWebViewProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJKWebViewProgress.h; sourceTree = "<group>"; };
+		4CEBB75E1C465FA100DA40F5 /* NJKWebViewProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJKWebViewProgress.m; sourceTree = "<group>"; };
+		4CEBB75F1C465FA100DA40F5 /* NJKWebViewProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJKWebViewProgressView.h; sourceTree = "<group>"; };
+		4CEBB7601C465FA100DA40F5 /* NJKWebViewProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJKWebViewProgressView.m; sourceTree = "<group>"; };
 		6401361318198A4B0041A84C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		6404E57E1913A20700221937 /* PBWebViewController.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PBWebViewController.podspec; sourceTree = SOURCE_ROOT; };
 		6404E5821913A21600221937 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = SOURCE_ROOT; };
@@ -96,6 +102,7 @@
 		1882DF941733D8CD0030D3E2 /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				4CEBB75C1C465FA100DA40F5 /* NJKWebViewProgress */,
 				6404E5861913A27700221937 /* Classes */,
 				1891119F17350B780089B197 /* PBWebViewController */,
 				189111A017350BB60089B197 /* PBSafariActivity */,
@@ -139,6 +146,18 @@
 			name = PBSafariActivity;
 			sourceTree = "<group>";
 		};
+		4CEBB75C1C465FA100DA40F5 /* NJKWebViewProgress */ = {
+			isa = PBXGroup;
+			children = (
+				4CEBB75D1C465FA100DA40F5 /* NJKWebViewProgress.h */,
+				4CEBB75E1C465FA100DA40F5 /* NJKWebViewProgress.m */,
+				4CEBB75F1C465FA100DA40F5 /* NJKWebViewProgressView.h */,
+				4CEBB7601C465FA100DA40F5 /* NJKWebViewProgressView.m */,
+			);
+			name = NJKWebViewProgress;
+			path = NJKWebViewProgress/NJKWebViewProgress;
+			sourceTree = SOURCE_ROOT;
+		};
 		6404E5861913A27700221937 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -179,7 +198,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = KM;
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Mikael Konutgan";
 			};
 			buildConfigurationList = 1882DF861733D8CC0030D3E2 /* Build configuration list for PBXProject "Example" */;
@@ -227,6 +246,8 @@
 				1882DFAB1733D8CD0030D3E2 /* KMWebViewController.m in Sources */,
 				18510C7C1733EA6100F0206C /* PBWebViewController.m in Sources */,
 				18034E4817345E9700439096 /* PBSafariActivity.m in Sources */,
+				4CEBB7611C465FA100DA40F5 /* NJKWebViewProgress.m in Sources */,
+				4CEBB7621C465FA100DA40F5 /* NJKWebViewProgressView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,6 +279,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -305,11 +327,10 @@
 		1882DFBB1733D8CD0030D3E2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Example/Example-Prefix.pch";
 				INFOPLIST_FILE = "Example/Example-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kmikael.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -318,11 +339,10 @@
 		1882DFBC1733D8CD0030D3E2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Example/Example-Prefix.pch";
 				INFOPLIST_FILE = "Example/Example-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kmikael.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

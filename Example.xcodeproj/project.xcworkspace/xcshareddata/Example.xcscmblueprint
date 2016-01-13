@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "45EC3020D8D4E3E6187C90008D649C003F4850C7",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "F913E68F531892EDDE856B06EC591985F863433E" : 0,
+    "45EC3020D8D4E3E6187C90008D649C003F4850C7" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "EAF5DDB3-D2E4-4205-994A-47B21CBB7FEE",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "F913E68F531892EDDE856B06EC591985F863433E" : "PBWebViewController\/NJKWebViewProgress\/",
+    "45EC3020D8D4E3E6187C90008D649C003F4850C7" : "PBWebViewController\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Example",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Example.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/syxc\/PBWebViewController.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "45EC3020D8D4E3E6187C90008D649C003F4850C7"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ninjinkun\/NJKWebViewProgress.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F913E68F531892EDDE856B06EC591985F863433E"
+    }
+  ]
+}

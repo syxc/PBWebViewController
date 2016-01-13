@@ -18,44 +18,44 @@
 
 - (NSString *)activityType
 {
-    return NSStringFromClass([self class]);
+  return NSStringFromClass([self class]);
 }
 
 - (NSString *)activityTitle
 {
-    return @"Open in Safari";
+  return @"Open in Safari";
 }
 
 - (UIImage *)activityImage
 {
-    return [UIImage imageNamed:@"782-compass"];
+  return [UIImage imageNamed:@"782-compass"];
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
 {
-    for (id activityItem in activityItems) {
-        if ([activityItem isKindOfClass:[NSURL class]] && [[UIApplication sharedApplication] canOpenURL:activityItem]) {
-            return YES;
-        }
+  for (id activityItem in activityItems) {
+    if ([activityItem isKindOfClass:[NSURL class]] && [[UIApplication sharedApplication] canOpenURL:activityItem]) {
+      return YES;
     }
-    
-    return NO;
+  }
+  
+  return NO;
 }
 
 - (void)prepareWithActivityItems:(NSArray *)activityItems
 {
-    for (id activityItem in activityItems) {
-        if ([activityItem isKindOfClass:[NSURL class]]) {
-            self.URL = activityItem;
-            return;
-        }
+  for (id activityItem in activityItems) {
+    if ([activityItem isKindOfClass:[NSURL class]]) {
+      self.URL = activityItem;
+      return;
     }
+  }
 }
 
 - (void)performActivity
 {
-    [[UIApplication sharedApplication] openURL:self.URL];
-    [self activityDidFinish:YES];
+  [[UIApplication sharedApplication] openURL:self.URL];
+  [self activityDidFinish:YES];
 }
 
 @end
